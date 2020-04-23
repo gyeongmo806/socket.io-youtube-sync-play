@@ -1,22 +1,104 @@
 <!doctype html>
 <html>
-  <head>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <title>Socket.IO chat</title>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: 0.5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .contents {
+            display: flex;
+            width: 200px;
+            margin: auto;
+            margin-top: 50%;
+            flex-direction: column;
+
+        }
+
+        ul {
+            width: 100%;
+            height: 300px;
+            overflow-y: scroll;
+        }
+
+        li:nth-child(even) {
+            background-color: rgb(156, 156, 156);
+        }
+
+        li {
+            list-style: none;
+        }
+
+        form {
+            display: flex;
+            flex-direction: row;
+        }
     </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-  </body>
+</head>
+
+<body>
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+        <div id="player"></div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
+        <script>
+            //socket
+            var socket = io()
+
+          // 2. This code loads the IFrame Player API code asynchronously.
+          var tag = document.createElement('script');
+            
+          tag.src = "https://www.youtube.com/iframe_api";
+          var firstScriptTag = document.getElementsByTagName('script')[0];
+          firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    
+          // 3. This function creates an <iframe> (and YouTube player)
+          //    after the API code downloads.
+          var player;
+          function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+              height: '720',
+              width: '1280',
+              videoId: 'bc1bVOfm2IU',
+              events: {
+                onReady: onPlayerReady,
+                onStateChange: onStateChange
+              }
+            });
+          }
+    
+          // 4. The API will call this function when the video player is ready.
+          function onPlayerReady(event) {
+            event.target.playVideo();
+          }
+          function onStateChange(event) {
+              console.log('change')
+              console.log(event.data)
+              if(event.data == 2){
+                var time = event.target.getCurrentTime()
+                socket.emit('time', {time:time, start : true})
+                event.target.pauseVideo();
+              }
+          }
+          setInterval(() => {
+              
+          },100)
+          socket.on('play',play => {
+              console.log('play')
+              player.playVideo()
+          })
+          socket.on('res', time => {
+              player.seekTo(time)
+          })
+          
+        </script>
+   
+   
+    
+</body>
+
 </html>
