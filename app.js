@@ -9,6 +9,8 @@ app.get('/', (req,res) => {
     res.sendFile(__dirname+'/index.html')
 })
 let hostId
+
+
 io.on('connection', (socket) => {
     if(hostId == undefined){
         hostId = socket.id
@@ -20,10 +22,26 @@ io.on('connection', (socket) => {
         console.log(socket.id+":"+data.time)
         if(socket.id == hostId){
             socket.broadcast.emit('res', data.time)
+            // 호스트 동작 시간이 빨라 동기화를 위해 딜레이
             setTimeout(()=>{
                 io.emit('play',true)
             },100)
             
+        }
+    })
+    socket.on('pause' ,(data) => {
+        console.log(data)
+        console.log(hostId, socket.id)
+        console.log(socket.id+":"+data.time)
+        if(socket.id == hostId){
+            socket.broadcast.emit('pause', data.time)
+            
+            
+        }
+    })
+    socket.on('play',()=>{
+        if(socket.id == hostId){
+            socket.broadcast.emit('play')
         }
     })
     

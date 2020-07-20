@@ -15,7 +15,7 @@ function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
     height: '720',
     width: '1280',
-    videoId: 'bc1bVOfm2IU',
+    videoId: 'uR8Mrt1IpXg',
     events: {
       onReady: onPlayerReady,
       onStateChange: onStateChange
@@ -30,19 +30,32 @@ function onPlayerReady(event) {
 function onStateChange(event) {
     console.log('change')
     console.log(event.data)
-    if(event.data == 2){
+    if(event.data == 3){
       var time = event.target.getCurrentTime()
       socket.emit('time', {time:time, start : true})
       event.target.pauseVideo();
+    }
+    else if(event.data == 2){
+      socket.emit('pause', {time:time, start : true})
+    }else if(event.data == 1){
+      socket.emit('play', {time:time, start : true})
     }
 }
 setInterval(() => {
     
 },100)
+//재생
 socket.on('play',play => {
     console.log('play')
     player.playVideo()
 })
+//일시정지
+socket.on('pause',pause => {
+  console.log('pause')
+  player.pauseVideo()
+})
+
+//싱크 타임
 socket.on('res', time => {
     player.seekTo(time)
 })
